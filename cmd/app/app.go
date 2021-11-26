@@ -11,6 +11,7 @@ import (
 	pkgarma "delegacia.com.br/app/domain/arma"
 	pkgarmauc "delegacia.com.br/app/usecase/arma"
 	pkgarmacontroller "delegacia.com.br/cmd/web/arma"
+	pkgarmainfra "delegacia.com.br/infra/database/repositories/arma"
 	"github.com/labstack/echo"
 )
 
@@ -24,16 +25,12 @@ type dependenceParams struct {
 
 func buildDependeciesParams() dependenceParams {
 	params := dependenceParams{}
-	params.ArmaService = pkgarma.NewServiceArma(pkgarma.NewArmaRepository())
+	params.ArmaService = pkgarma.NewServiceArma(pkgarmainfra.NewArmaRepository())
 
 	return params
 }
 
 func buildArmaEndPoints(dependency *dependenceParams, g *echo.Group) {
-
-	saveParams := pkgarmauc.SaveUseCaseParams{
-		Service: dependency.ArmaService,
-	}
 
 	findAllParams := pkgarmauc.FindAllUseCaseParams{
 		Service: dependency.ArmaService,
@@ -43,14 +40,23 @@ func buildArmaEndPoints(dependency *dependenceParams, g *echo.Group) {
 		Service: dependency.ArmaService,
 	}
 
+	insertParams := pkgarmauc.InsertUseCaseParams{
+		Service: dependency.ArmaService,
+	}
+
+	updateParams := pkgarmauc.UpdateUseCaseParams{
+		Service: dependency.ArmaService,
+	}
+
 	deleteParams := pkgarmauc.DeleteUseCaseParams{
 		Service: dependency.ArmaService,
 	}
 
 	armaControlleParams := pkgarmacontroller.ArmaControlleParams{
-		SaveUseCaseParams:     saveParams,
 		FindAllUseCaseParams:  findAllParams,
 		FindByIdUseCaseParams: findByIdParams,
+		InsertUseCaseParams:   insertParams,
+		UpdateUseCaseParams:   updateParams,
 		DeleteUseCaseParams:   deleteParams,
 	}
 	pkgarmacontroller.NewArmaController(&armaControlleParams, g)

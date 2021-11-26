@@ -1,6 +1,7 @@
 package arma
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,48 +10,76 @@ import (
 )
 
 type ArmaController struct {
-	SaveUseCaseParams     pkgarmauc.SaveUseCaseParams
 	FindAllUseCaseParams  pkgarmauc.FindAllUseCaseParams
 	FindByIdUseCaseParams pkgarmauc.FindByIdUseCaseParams
+	InsertUseCaseParams   pkgarmauc.InsertUseCaseParams
+	UpdateUseCaseParams   pkgarmauc.UpdateUseCaseParams
 	DeleteUseCaseParams   pkgarmauc.DeleteUseCaseParams
 }
 
 type ArmaControlleParams struct {
-	SaveUseCaseParams     pkgarmauc.SaveUseCaseParams
 	FindAllUseCaseParams  pkgarmauc.FindAllUseCaseParams
 	FindByIdUseCaseParams pkgarmauc.FindByIdUseCaseParams
+	InsertUseCaseParams   pkgarmauc.InsertUseCaseParams
+	UpdateUseCaseParams   pkgarmauc.UpdateUseCaseParams
 	DeleteUseCaseParams   pkgarmauc.DeleteUseCaseParams
 }
 
 func NewArmaController(params *ArmaControlleParams, g *echo.Group) {
 	controller := ArmaController{
-		SaveUseCaseParams:     params.SaveUseCaseParams,
 		FindAllUseCaseParams:  params.FindAllUseCaseParams,
 		FindByIdUseCaseParams: params.FindByIdUseCaseParams,
+		InsertUseCaseParams:   params.InsertUseCaseParams,
+		UpdateUseCaseParams:   params.UpdateUseCaseParams,
 		DeleteUseCaseParams:   params.DeleteUseCaseParams,
 	}
-	g.POST("/arma", controller.Save)
+	g.POST("/arma", controller.Insert)
 	g.GET("/armas", controller.FindAll)
 	g.GET("/arma/:id", controller.FindById)
+	g.PUT("/arma/:id", controller.Update)
 	g.DELETE("/arma/:id", controller.Remove)
 
 }
 
-func (c *ArmaController) Save(ctx echo.Context) error {
+func (c *ArmaController) Insert(ctx echo.Context) error {
 
 	assembler := pkgarmauc.ArmaAssembler{}
 	if err := ctx.Bind(&assembler); err != nil {
 		return ctx.JSON(http.StatusPreconditionFailed, err)
 	}
 
-	uc := pkgarmauc.NewSaveArmaUseCase(c.SaveUseCaseParams)
+	uc := pkgarmauc.NewInsertArmaUseCase(c.InsertUseCaseParams)
 	uc.Assembler = &assembler
-	arma, err := uc.Eecute()
+	arma, err := uc.Execute()
 	if err != nil {
 		return ctx.JSON(http.StatusPreconditionFailed, nil)
 	}
 	return ctx.JSON(http.StatusOK, arma)
 
+}
+func (c *ArmaController) Update(ctx echo.Context) error {
+
+	idString := ctx.Param("id")
+	if id, err := strconv.ParseInt(idString, 10, 64); err == nil {
+
+		assembler := pkgarmauc.ArmaAssembler{}
+		if err := ctx.Bind(&assembler); err != nil {
+			return ctx.JSON(http.StatusPreconditionFailed, err)
+		}
+
+		if id != assembler.ID {
+			return fmt.Errorf("id invalid")
+		}
+
+		uc := pkgarmauc.NewUpdateUseCase(c.UpdateUseCaseParams)
+		uc.Assembler = &assembler
+		arma, err := uc.Execute()
+		if err != nil {
+			return ctx.JSON(http.StatusPreconditionFailed, nil)
+		}
+		return ctx.JSON(http.StatusOK, arma)
+	}
+	return ctx.JSON(http.StatusPreconditionFailed, nil)
 }
 
 func (c *ArmaController) FindAll(ctx echo.Context) error {

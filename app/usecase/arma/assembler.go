@@ -1,7 +1,7 @@
 package arma
 
 type ArmaAssembler struct {
-	ID          int64             `json:"_id"`
+	ID          int64             `json:"id"`
 	Description string            `json:"description"`
 	Type        TypeArmaAssembler `json:"type"`
 }

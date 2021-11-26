@@ -6,22 +6,22 @@ import (
 	pkgarma "delegacia.com.br/app/domain/arma"
 )
 
-type SaveUseCase struct {
+type InsertUseCase struct {
 	Service   pkgarma.Service
 	Assembler *ArmaAssembler
 }
 
-type SaveUseCaseParams struct {
+type InsertUseCaseParams struct {
 	Service pkgarma.Service
 }
 
-func NewSaveArmaUseCase(params SaveUseCaseParams) *SaveUseCase {
-	return &SaveUseCase{
+func NewInsertArmaUseCase(params InsertUseCaseParams) *InsertUseCase {
+	return &InsertUseCase{
 		Service: params.Service,
 	}
 }
 
-func (uc *SaveUseCase) Eecute() (*ArmaPresenter, error) {
+func (uc *InsertUseCase) Execute() (*ArmaPresenter, error) {
 	if uc.Assembler == nil {
 		return nil, fmt.Errorf("Invalid data")
 	}

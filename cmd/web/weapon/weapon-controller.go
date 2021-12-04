@@ -1,32 +1,32 @@
-package arma
+package weaponcontroller
 
 import (
 	"fmt"
 	"net/http"
 	"strconv"
 
-	pkgarmauc "delegacia.com.br/app/usecase/arma"
+	pkgweaponuc "delegacia.com.br/app/usecase/weapon"
 	"github.com/labstack/echo"
 )
 
-type ArmaController struct {
-	FindAllUseCaseParams  pkgarmauc.FindAllUseCaseParams
-	FindByIdUseCaseParams pkgarmauc.FindByIdUseCaseParams
-	InsertUseCaseParams   pkgarmauc.InsertUseCaseParams
-	UpdateUseCaseParams   pkgarmauc.UpdateUseCaseParams
-	DeleteUseCaseParams   pkgarmauc.DeleteUseCaseParams
+type WeaponController struct {
+	FindAllUseCaseParams  pkgweaponuc.FindAllUseCaseParams
+	FindByIdUseCaseParams pkgweaponuc.FindByIdUseCaseParams
+	InsertUseCaseParams   pkgweaponuc.InsertUseCaseParams
+	UpdateUseCaseParams   pkgweaponuc.UpdateUseCaseParams
+	DeleteUseCaseParams   pkgweaponuc.DeleteUseCaseParams
 }
 
-type ArmaControlleParams struct {
-	FindAllUseCaseParams  pkgarmauc.FindAllUseCaseParams
-	FindByIdUseCaseParams pkgarmauc.FindByIdUseCaseParams
-	InsertUseCaseParams   pkgarmauc.InsertUseCaseParams
-	UpdateUseCaseParams   pkgarmauc.UpdateUseCaseParams
-	DeleteUseCaseParams   pkgarmauc.DeleteUseCaseParams
+type WeaponControlleParams struct {
+	FindAllUseCaseParams  pkgweaponuc.FindAllUseCaseParams
+	FindByIdUseCaseParams pkgweaponuc.FindByIdUseCaseParams
+	InsertUseCaseParams   pkgweaponuc.InsertUseCaseParams
+	UpdateUseCaseParams   pkgweaponuc.UpdateUseCaseParams
+	DeleteUseCaseParams   pkgweaponuc.DeleteUseCaseParams
 }
 
-func NewArmaController(params *ArmaControlleParams, g *echo.Group) {
-	controller := ArmaController{
+func NewWeaponController(params *WeaponControlleParams, g *echo.Group) {
+	controller := WeaponController{
 		FindAllUseCaseParams:  params.FindAllUseCaseParams,
 		FindByIdUseCaseParams: params.FindByIdUseCaseParams,
 		InsertUseCaseParams:   params.InsertUseCaseParams,
@@ -41,28 +41,28 @@ func NewArmaController(params *ArmaControlleParams, g *echo.Group) {
 
 }
 
-func (c *ArmaController) Insert(ctx echo.Context) error {
+func (c *WeaponController) Insert(ctx echo.Context) error {
 
-	assembler := pkgarmauc.ArmaAssembler{}
+	assembler := pkgweaponuc.WeaponAssembler{}
 	if err := ctx.Bind(&assembler); err != nil {
 		return ctx.JSON(http.StatusPreconditionFailed, err)
 	}
 
-	uc := pkgarmauc.NewInsertArmaUseCase(c.InsertUseCaseParams)
+	uc := pkgweaponuc.NewInsertUseCase(c.InsertUseCaseParams)
 	uc.Assembler = &assembler
-	arma, err := uc.Execute()
+	weapon, err := uc.Execute()
 	if err != nil {
 		return ctx.JSON(http.StatusPreconditionFailed, nil)
 	}
-	return ctx.JSON(http.StatusOK, arma)
+	return ctx.JSON(http.StatusOK, weapon)
 
 }
-func (c *ArmaController) Update(ctx echo.Context) error {
+func (c *WeaponController) Update(ctx echo.Context) error {
 
 	idString := ctx.Param("id")
 	if id, err := strconv.ParseInt(idString, 10, 64); err == nil {
 
-		assembler := pkgarmauc.ArmaAssembler{}
+		assembler := pkgweaponuc.WeaponAssembler{}
 		if err := ctx.Bind(&assembler); err != nil {
 			return ctx.JSON(http.StatusPreconditionFailed, err)
 		}
@@ -71,30 +71,30 @@ func (c *ArmaController) Update(ctx echo.Context) error {
 			return fmt.Errorf("id invalid")
 		}
 
-		uc := pkgarmauc.NewUpdateUseCase(c.UpdateUseCaseParams)
+		uc := pkgweaponuc.NewUpdateUseCase(c.UpdateUseCaseParams)
 		uc.Assembler = &assembler
-		arma, err := uc.Execute()
+		weapon, err := uc.Execute()
 		if err != nil {
 			return ctx.JSON(http.StatusPreconditionFailed, nil)
 		}
-		return ctx.JSON(http.StatusOK, arma)
+		return ctx.JSON(http.StatusOK, weapon)
 	}
 	return ctx.JSON(http.StatusPreconditionFailed, nil)
 }
 
-func (c *ArmaController) FindAll(ctx echo.Context) error {
+func (c *WeaponController) FindAll(ctx echo.Context) error {
 
-	uc := pkgarmauc.NewFindAllUseCase(c.FindAllUseCaseParams)
-	armas, err := uc.Execute()
+	uc := pkgweaponuc.NewFindAllUseCase(c.FindAllUseCaseParams)
+	weapons, err := uc.Execute()
 
 	if err != nil {
 		return ctx.JSON(http.StatusPreconditionFailed, nil)
 	}
-	return ctx.JSON(http.StatusOK, armas)
+	return ctx.JSON(http.StatusOK, weapons)
 
 }
 
-func (c *ArmaController) FindById(ctx echo.Context) error {
+func (c *WeaponController) FindById(ctx echo.Context) error {
 
 	idAssembler := ctx.Param("id")
 	id, err := strconv.ParseInt(idAssembler, 10, 64)
@@ -102,17 +102,17 @@ func (c *ArmaController) FindById(ctx echo.Context) error {
 		return ctx.JSON(http.StatusPreconditionFailed, err)
 	}
 
-	uc := pkgarmauc.NewFindByIdUseCase(c.FindByIdUseCaseParams)
+	uc := pkgweaponuc.NewFindByIdUseCase(c.FindByIdUseCaseParams)
 	uc.ID = &id
-	arma, err := uc.Execute()
+	weapon, err := uc.Execute()
 	if err != nil {
 		return ctx.JSON(http.StatusNotFound, nil)
 	}
 
-	return ctx.JSON(http.StatusOK, arma)
+	return ctx.JSON(http.StatusOK, weapon)
 }
 
-func (c *ArmaController) Remove(ctx echo.Context) error {
+func (c *WeaponController) Remove(ctx echo.Context) error {
 
 	idAssembler := ctx.Param("id")
 	id, err := strconv.ParseInt(idAssembler, 10, 64)
@@ -120,7 +120,7 @@ func (c *ArmaController) Remove(ctx echo.Context) error {
 		return ctx.JSON(http.StatusPreconditionFailed, err)
 	}
 
-	uc := pkgarmauc.NewDeleteUseCase(c.DeleteUseCaseParams)
+	uc := pkgweaponuc.NewDeleteUseCase(c.DeleteUseCaseParams)
 	uc.ID = &id
 	err = uc.Execute()
 	if err != nil {

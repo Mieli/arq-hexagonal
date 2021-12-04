@@ -1,18 +1,18 @@
-package arma
+package weapon_usecase
 
 import (
 	"fmt"
 
-	pkgarma "delegacia.com.br/app/domain/arma"
+	pkgweapon "delegacia.com.br/app/domain/weapon"
 )
 
 type UpdateUseCase struct {
-	Service   pkgarma.Service
-	Assembler *ArmaAssembler
+	Service   pkgweapon.Service
+	Assembler *WeaponAssembler
 }
 
 type UpdateUseCaseParams struct {
-	Service pkgarma.Service
+	Service pkgweapon.Service
 }
 
 func NewUpdateUseCase(params UpdateUseCaseParams) UpdateUseCase {
@@ -21,18 +21,18 @@ func NewUpdateUseCase(params UpdateUseCaseParams) UpdateUseCase {
 	}
 }
 
-func (uc *UpdateUseCase) Execute() (*ArmaPresenter, error) {
+func (uc *UpdateUseCase) Execute() (*WeaponPresenter, error) {
 	if uc.Assembler == nil {
 		return nil, fmt.Errorf("data invalid")
 	}
 
-	arma := generateArma(*uc.Assembler)
+	arma := GenerateWeapon(*uc.Assembler)
 	newArma, err := uc.Service.Save(&arma)
 	if err != nil {
 		return nil, fmt.Errorf("update error")
 	}
 
-	presenter := generateArmaPresenter(*newArma)
+	presenter := GenerateWeaponPresenter(*newArma)
 	return &presenter, nil
 
 }

@@ -8,9 +8,14 @@ import (
 	"syscall"
 	"time"
 
-	pkgarma "delegacia.com.br/app/domain/arma"
-	pkgarmauc "delegacia.com.br/app/usecase/arma"
-	pkgarmacontroller "delegacia.com.br/cmd/web/arma"
+	pkgvictim "delegacia.com.br/app/domain/victim"
+	pkgweapon "delegacia.com.br/app/domain/weapon"
+	pkgvictimuc "delegacia.com.br/app/usecase/victim"
+	pkgweaponuc "delegacia.com.br/app/usecase/weapon"
+	pkgvictimcontroller "delegacia.com.br/cmd/web/victim"
+	pkgweaponacontroller "delegacia.com.br/cmd/web/weapon"
+	pkgvictiminfra "delegacia.com.br/infra/database/repositories/victim"
+	pkgweaponinfra "delegacia.com.br/infra/database/repositories/weapon"
 	"github.com/labstack/echo"
 )
 
@@ -19,41 +24,80 @@ type Server struct {
 }
 
 type dependenceParams struct {
-	ArmaService pkgarma.Service
+	WeaponService pkgweapon.Service
+	VictimService pkgvictim.Service
 }
 
 func buildDependeciesParams() dependenceParams {
 	params := dependenceParams{}
-	params.ArmaService = pkgarma.NewServiceArma(pkgarma.NewArmaRepository())
+
+	params.WeaponService = pkgweapon.NewServiceWeapon(pkgweaponinfra.NewWeaponRepository())
+	params.VictimService = pkgvictim.NewServiceVictim(pkgvictiminfra.NewVictimRepository())
 
 	return params
 }
 
-func buildArmaEndPoints(dependency *dependenceParams, g *echo.Group) {
+func buildWeaponEndPoint(dependency *dependenceParams, g *echo.Group) {
 
-	saveParams := pkgarmauc.SaveUseCaseParams{
-		Service: dependency.ArmaService,
+	findAllParams := pkgweaponuc.FindAllUseCaseParams{
+		Service: dependency.WeaponService,
 	}
 
-	findAllParams := pkgarmauc.FindAllUseCaseParams{
-		Service: dependency.ArmaService,
+	findByIdParams := pkgweaponuc.FindByIdUseCaseParams{
+		Service: dependency.WeaponService,
 	}
 
-	findByIdParams := pkgarmauc.FindByIdUseCaseParams{
-		Service: dependency.ArmaService,
+	insertParams := pkgweaponuc.InsertUseCaseParams{
+		Service: dependency.WeaponService,
 	}
 
-	deleteParams := pkgarmauc.DeleteUseCaseParams{
-		Service: dependency.ArmaService,
+	updateParams := pkgweaponuc.UpdateUseCaseParams{
+		Service: dependency.WeaponService,
 	}
 
-	armaControlleParams := pkgarmacontroller.ArmaControlleParams{
-		SaveUseCaseParams:     saveParams,
+	deleteParams := pkgweaponuc.DeleteUseCaseParams{
+		Service: dependency.WeaponService,
+	}
+
+	weaponControlleParams := pkgweaponacontroller.WeaponControlleParams{
 		FindAllUseCaseParams:  findAllParams,
 		FindByIdUseCaseParams: findByIdParams,
+		InsertUseCaseParams:   insertParams,
+		UpdateUseCaseParams:   updateParams,
 		DeleteUseCaseParams:   deleteParams,
 	}
-	pkgarmacontroller.NewArmaController(&armaControlleParams, g)
+	pkgweaponacontroller.NewWeaponController(&weaponControlleParams, g)
+}
+
+func buildVictimEndPoints(dependency *dependenceParams, g *echo.Group) {
+
+	findAllParamns := pkgvictimuc.FindAllUseCaseParams{
+		VictimService: dependency.VictimService,
+	}
+
+	findByIdParams := pkgvictimuc.FindByIdUseCaseParams{
+		VictimService: dependency.VictimService,
+	}
+	deleteParams := pkgvictimuc.DeleteUseCaseParams{
+		VictimService: dependency.VictimService,
+	}
+	insertParams := pkgvictimuc.InsertUseCaseParams{
+		VictimService: dependency.VictimService,
+	}
+
+	updateParams := pkgvictimuc.UpdateUseCaseParams{
+		VictimService: dependency.VictimService,
+	}
+
+	victimControllerParams := pkgvictimcontroller.VictimControllerParams{
+		FindAllUseCaseParams:  findAllParamns,
+		FindByIdUseCaseParams: findByIdParams,
+		DeleteUseCaseParams:   deleteParams,
+		InsertUseCaseParams:   insertParams,
+		UpdateUseCaseParams:   updateParams,
+	}
+
+	pkgvictimcontroller.NewVictimController(victimControllerParams, g)
 }
 
 func Start() {
@@ -62,7 +106,8 @@ func Start() {
 	routerGroup := router.Group("/api/v1")
 
 	dependency := buildDependeciesParams()
-	buildArmaEndPoints(&dependency, routerGroup)
+	buildWeaponEndPoint(&dependency, routerGroup)
+	buildVictimEndPoints(&dependency, routerGroup)
 
 	server := newServer("6000", router)
 	server.ListenAndServe()

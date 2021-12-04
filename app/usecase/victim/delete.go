@@ -1,23 +1,23 @@
-package arma
+package victim_usecase
 
 import (
 	"fmt"
 
-	pkgarma "delegacia.com.br/app/domain/arma"
+	pkgvictim "delegacia.com.br/app/domain/victim"
 )
 
 type DeleteUseCase struct {
-	Service pkgarma.Service
-	ID      *int64
+	VictimService pkgvictim.Service
+	ID            *int64
 }
 
 type DeleteUseCaseParams struct {
-	Service pkgarma.Service
+	VictimService pkgvictim.Service
 }
 
 func NewDeleteUseCase(params DeleteUseCaseParams) DeleteUseCase {
 	return DeleteUseCase{
-		Service: params.Service,
+		VictimService: params.VictimService,
 	}
 }
 
@@ -26,7 +26,7 @@ func (uc *DeleteUseCase) Execute() error {
 		return fmt.Errorf("invalid id")
 	}
 
-	err := uc.Service.Remove(*uc.ID)
+	err := uc.VictimService.Remove(*uc.ID)
 	if err != nil {
 		return fmt.Errorf("error remove data")
 	}

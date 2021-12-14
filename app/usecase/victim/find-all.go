@@ -25,7 +25,7 @@ func (uc *FindAllUseCase) Execute() ([]*VictimPresenter, error) {
 		return nil, err
 	}
 
-	presenter := GenerateListPresenter(*result)
+	presenter := GenerateListPresenter(result)
 
 	return presenter, nil
 

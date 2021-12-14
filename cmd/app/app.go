@@ -17,6 +17,7 @@ import (
 	pkgvictiminfra "delegacia.com.br/infra/database/repositories/victim"
 	pkgweaponinfra "delegacia.com.br/infra/database/repositories/weapon"
 	"github.com/labstack/echo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Server struct {
@@ -28,11 +29,12 @@ type dependenceParams struct {
 	VictimService pkgvictim.Service
 }
 
-func buildDependeciesParams() dependenceParams {
+func buildDependeciesParams(db mongo.Client) dependenceParams {
+
 	params := dependenceParams{}
 
-	params.WeaponService = pkgweapon.NewServiceWeapon(pkgweaponinfra.NewWeaponRepository())
-	params.VictimService = pkgvictim.NewServiceVictim(pkgvictiminfra.NewVictimRepository())
+	params.WeaponService = pkgweapon.NewServiceWeapon(pkgweaponinfra.NewWeaponRepository(db))
+	params.VictimService = pkgvictim.NewServiceVictim(pkgvictiminfra.NewVictimRepository(db))
 
 	return params
 }
@@ -100,12 +102,12 @@ func buildVictimEndPoints(dependency *dependenceParams, g *echo.Group) {
 	pkgvictimcontroller.NewVictimController(victimControllerParams, g)
 }
 
-func Start() {
+func Start(db *mongo.Client) {
 
 	router := echo.New()
 	routerGroup := router.Group("/api/v1")
 
-	dependency := buildDependeciesParams()
+	dependency := buildDependeciesParams(*db)
 	buildWeaponEndPoint(&dependency, routerGroup)
 	buildVictimEndPoints(&dependency, routerGroup)
 

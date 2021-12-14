@@ -11,7 +11,13 @@ import (
 var DEFAULT_ENV = make(map[string]string)
 
 func readEnviroment() {
-	filePath := "../../enviroments.txt"
+	filePath := ""
+	if os.Getenv("APP_MODE") == "debug" {
+		filePath = "./../enviroments.txt"
+	} else {
+		filePath = "./enviroments.txt"
+
+	}
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)

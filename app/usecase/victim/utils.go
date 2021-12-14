@@ -29,7 +29,7 @@ func GenerateVictimPresenter(victim *pkgvictim.Victim) *VictimPresenter {
 	return nil
 }
 
-func GenerateListPresenter(victims []pkgvictim.Victim) []*VictimPresenter {
+func GenerateListPresenter(victims []*pkgvictim.Victim) []*VictimPresenter {
 	list := make([]*VictimPresenter, 0)
 	if len(victims) > 0 {
 		for _, victim := range victims {

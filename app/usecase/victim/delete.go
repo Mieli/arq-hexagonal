@@ -8,7 +8,7 @@ import (
 
 type DeleteUseCase struct {
 	VictimService pkgvictim.Service
-	ID            *int64
+	ID            *string
 }
 
 type DeleteUseCaseParams struct {

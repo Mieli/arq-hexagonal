@@ -8,7 +8,7 @@ import (
 
 type FindByIdUseCase struct {
 	VictimService pkgvictim.Service
-	ID            *int64
+	ID            *string
 }
 type FindByIdUseCaseParams struct {
 	VictimService pkgvictim.Service

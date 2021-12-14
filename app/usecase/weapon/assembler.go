@@ -1,7 +1,9 @@
 package weapon_usecase
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type WeaponAssembler struct {
-	ID          int64               `json:"id"`
+	ID          primitive.ObjectID  `json:"id"`
 	Description string              `json:"description"`
 	Type        TypeWeaponAssembler `json:"type"`
 }

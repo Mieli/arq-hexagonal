@@ -1,7 +1,6 @@
 package weaponcontroller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -59,26 +58,26 @@ func (c *WeaponController) Insert(ctx echo.Context) error {
 }
 func (c *WeaponController) Update(ctx echo.Context) error {
 
-	idString := ctx.Param("id")
-	if id, err := strconv.ParseInt(idString, 10, 64); err == nil {
+	// idString := ctx.Param("id")
+	// if id, err := strconv.ParseInt(idString, 10, 64); err == nil {
 
-		assembler := pkgweaponuc.WeaponAssembler{}
-		if err := ctx.Bind(&assembler); err != nil {
-			return ctx.JSON(http.StatusPreconditionFailed, err)
-		}
+	// 	assembler := pkgweaponuc.WeaponAssembler{}
+	// 	if err := ctx.Bind(&assembler); err != nil {
+	// 		return ctx.JSON(http.StatusPreconditionFailed, err)
+	// 	}
 
-		if id != assembler.ID {
-			return fmt.Errorf("id invalid")
-		}
+	// 	if id != assembler.ID {
+	// 		return fmt.Errorf("id invalid")
+	// 	}
 
-		uc := pkgweaponuc.NewUpdateUseCase(c.UpdateUseCaseParams)
-		uc.Assembler = &assembler
-		weapon, err := uc.Execute()
-		if err != nil {
-			return ctx.JSON(http.StatusPreconditionFailed, nil)
-		}
-		return ctx.JSON(http.StatusOK, weapon)
-	}
+	// 	uc := pkgweaponuc.NewUpdateUseCase(c.UpdateUseCaseParams)
+	// 	uc.Assembler = &assembler
+	// 	weapon, err := uc.Execute()
+	// 	if err != nil {
+	// 		return ctx.JSON(http.StatusPreconditionFailed, nil)
+	// 	}
+	// 	return ctx.JSON(http.StatusOK, weapon)
+	// }
 	return ctx.JSON(http.StatusPreconditionFailed, nil)
 }
 

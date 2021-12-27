@@ -8,12 +8,17 @@ import (
 	"syscall"
 	"time"
 
+	pkguser "delegacia.com.br/app/domain/user"
 	pkgvictim "delegacia.com.br/app/domain/victim"
 	pkgweapon "delegacia.com.br/app/domain/weapon"
+	pkguseruc "delegacia.com.br/app/usecase/user"
 	pkgvictimuc "delegacia.com.br/app/usecase/victim"
 	pkgweaponuc "delegacia.com.br/app/usecase/weapon"
+	pkglogincontroller "delegacia.com.br/cmd/web/login"
+	pkgusercontroller "delegacia.com.br/cmd/web/user"
 	pkgvictimcontroller "delegacia.com.br/cmd/web/victim"
 	pkgweaponacontroller "delegacia.com.br/cmd/web/weapon"
+	pkguserinfra "delegacia.com.br/infra/database/repositories/user"
 	pkgvictiminfra "delegacia.com.br/infra/database/repositories/victim"
 	pkgweaponinfra "delegacia.com.br/infra/database/repositories/weapon"
 	"github.com/labstack/echo"
@@ -27,6 +32,7 @@ type Server struct {
 type dependenceParams struct {
 	WeaponService pkgweapon.Service
 	VictimService pkgvictim.Service
+	UserService   pkguser.Service
 }
 
 func buildDependeciesParams(db mongo.Client) dependenceParams {
@@ -35,7 +41,7 @@ func buildDependeciesParams(db mongo.Client) dependenceParams {
 
 	params.WeaponService = pkgweapon.NewServiceWeapon(pkgweaponinfra.NewWeaponRepository(db))
 	params.VictimService = pkgvictim.NewServiceVictim(pkgvictiminfra.NewVictimRepository(db))
-
+	params.UserService = pkguser.NewServiceUser(pkguserinfra.NewUserRepository(db))
 	return params
 }
 
@@ -102,6 +108,50 @@ func buildVictimEndPoints(dependency *dependenceParams, g *echo.Group) {
 	pkgvictimcontroller.NewVictimController(victimControllerParams, g)
 }
 
+func buildUserEndPoints(dependency *dependenceParams, g *echo.Group) {
+
+	findAllParamns := pkguseruc.FindAllUseCaseParams{
+		Service: dependency.UserService,
+	}
+
+	findByIdParams := pkguseruc.FindByIDUseCaseParams{
+		Service: dependency.UserService,
+	}
+	deleteParams := pkguseruc.DeleteUseCaseParams{
+		Service: dependency.UserService,
+	}
+	insertParams := pkguseruc.InsertUseCaseParams{
+		Service: dependency.UserService,
+	}
+
+	updateParams := pkguseruc.UpdateUseCaseParams{
+		Service: dependency.UserService,
+	}
+
+	userControllerParams := pkgusercontroller.UserControllerParams{
+		InsertUseCaseParams:   insertParams,
+		FindAllUseCaseParams:  findAllParamns,
+		FindByIdUseCaseParams: findByIdParams,
+		UpdateUseCaseParams:   updateParams,
+		DeleteUseCaseParams:   deleteParams,
+	}
+
+	pkgusercontroller.NewUserController(userControllerParams, g)
+}
+
+func buildLoginEndPoints(dependency *dependenceParams, g *echo.Group) {
+
+	loginParams := pkguseruc.LoginUseCaseParams{
+		Service: dependency.UserService,
+	}
+
+	loginControllerParams := pkglogincontroller.LoginControllerParams{
+		LoginUseCaseParams: loginParams,
+	}
+
+	pkglogincontroller.NewLoginController(loginControllerParams, g)
+}
+
 func Start(db *mongo.Client) {
 
 	router := echo.New()
@@ -110,6 +160,8 @@ func Start(db *mongo.Client) {
 	dependency := buildDependeciesParams(*db)
 	buildWeaponEndPoint(&dependency, routerGroup)
 	buildVictimEndPoints(&dependency, routerGroup)
+	buildUserEndPoints(&dependency, routerGroup)
+	buildLoginEndPoints(&dependency, routerGroup)
 
 	server := newServer("6000", router)
 	server.ListenAndServe()

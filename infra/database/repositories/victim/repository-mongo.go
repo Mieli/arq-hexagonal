@@ -34,11 +34,11 @@ func NewVictimRepository(db mongo.Client) pkgvictim.VictimRepository {
 func (r *repository) Save(victim pkgvictim.Victim) (*pkgvictim.Victim, error) {
 	id := victim.ID.Hex()
 	if id != "" {
-		victim, err := update(r.contextoRepository, r.collection, id, victim)
+		newVictim, err := update(r.contextoRepository, r.collection, id, victim)
 		if err != nil {
 			return nil, err
 		}
-		return victim, nil
+		return newVictim, nil
 	} else {
 		oid, err := insert(r.contextoRepository, r.collection, &victim)
 		id, _ := primitive.ObjectIDFromHex(*oid)
@@ -93,10 +93,10 @@ func update(ctx context.Context, collection mongo.Collection, id string, newVict
 	filterUpdate := bson.M{}
 	filterUpdate["$set"] = &newVictim
 
-	result := collection.FindOneAndUpdate(ctx, filter, filterUpdate)
+	_, err = collection.UpdateOne(ctx, filter, filterUpdate)
 
-	if result != nil && result.Err() != nil {
-		return nil, fmt.Errorf(result.Err().Error())
+	if err != nil {
+		return nil, err
 	}
 	return &newVictim, nil
 }
